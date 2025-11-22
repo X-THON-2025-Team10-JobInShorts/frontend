@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import OnboardingCard from '@/components/onboarding/OnboardingCard';
 import { ONBOARDING_CONTENTS } from '@/constants/onboarding';
+import { AnimatePresence, motion } from 'motion/react';
 
 const TOTAL_STEPS = 3;
 
@@ -43,11 +44,23 @@ function OnboardingLogic() {
 
   /** render 부분은 네가 퍼블리싱 넣으면 됨 */
   return (
-    <>
-      {currentStep === 1 && <Step1 next={next} skip={skip} />}
-      {currentStep === 2 && <Step2 next={next} back={back} skip={skip} />}
-      {currentStep === 3 && <Step3 complete={complete} back={back} />}
-    </>
+    <div className="relative w-full h-full overflow-hidden">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentStep}
+          initial={{ opacity: 0.5, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0.5, x: -30 }}
+          transition={{ duration: 0.25 }}
+          className="absolute w-full h-full"
+        >
+          {/* Step 렌더링 */}
+          {currentStep === 1 && <Step1 next={next} skip={skip} />}
+          {currentStep === 2 && <Step2 next={next} back={back} skip={skip} />}
+          {currentStep === 3 && <Step3 complete={complete} back={back} skip={skip} />}
+        </motion.div>
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -59,16 +72,48 @@ export default function OnboardingPage() {
   );
 }
 
-/* --- Step 컴포넌트는 네가 퍼블리싱해서 넣으면 됨 --- */
-
 function Step1({ next, skip }: { next: () => void; skip: () => void }) {
-  return <OnboardingCard next={next} skip={skip} content={ONBOARDING_CONTENTS.step1} />;
+  return (
+    <OnboardingCard
+      next={next}
+      skip={skip}
+      content={ONBOARDING_CONTENTS.step1}
+      step={1}
+      maxSteps={TOTAL_STEPS}
+    />
+  );
 }
 
 function Step2({ next, back, skip }: { next: () => void; back: () => void; skip: () => void }) {
-  return <OnboardingCard next={next} back={back} skip={skip} content={ONBOARDING_CONTENTS.step2} />;
+  return (
+    <OnboardingCard
+      next={next}
+      back={back}
+      skip={skip}
+      content={ONBOARDING_CONTENTS.step2}
+      step={2}
+      maxSteps={TOTAL_STEPS}
+    />
+  );
 }
 
-function Step3({ complete, back }: { complete: () => void; back: () => void }) {
-  return <OnboardingCard complete={complete} back={back} content={ONBOARDING_CONTENTS.step3} />;
+function Step3({
+  complete,
+  back,
+  skip,
+}: {
+  complete: () => void;
+  back: () => void;
+  skip: () => void;
+}) {
+  return (
+    <OnboardingCard
+      complete={complete}
+      back={back}
+      skip={skip}
+      content={ONBOARDING_CONTENTS.step3}
+      step={3}
+      maxSteps={TOTAL_STEPS}
+    />
+  );
 }

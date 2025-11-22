@@ -10,6 +10,8 @@ interface OnboardingCardProps {
   complete?: () => void;
   className?: string;
   content: OnboardingContents;
+  step: number;
+  maxSteps: number;
 }
 
 export default function OnboardingCard({
@@ -19,6 +21,8 @@ export default function OnboardingCard({
   complete,
   className,
   content,
+  step,
+  maxSteps,
 }: OnboardingCardProps) {
   return (
     <section
@@ -45,9 +49,27 @@ export default function OnboardingCard({
       {/* 온보딩 카드 UI 구현 */}
       <div className="bg-white w-full h-[280px] flex flex-col items-center justify-between rounded-t-4xl p-8">
         <h2 className="font-semibold text-4xl">{content.title}</h2>
-        <p className="font-medium text-[#737373] text-base whitespace-pre-line text-center">
+        <p className="font-medium text-[#737373] text-base whitespace-pre-line text-center h-[52px]">
           {content.description}
         </p>
+
+        {/* 진행 인디케이터 */}
+        <div className="flex items-center justify-center gap-2">
+          {Array.from({ length: maxSteps }).map((_, i) => {
+            const stepIndex = i + 1;
+            const isActive = step === stepIndex;
+
+            return (
+              <div
+                key={i}
+                className={cn(
+                  'h-2 rounded-full transition-all duration-300',
+                  isActive ? 'w-8 bg-[#00A6F4]' : 'w-2 bg-gray-300',
+                )}
+              />
+            );
+          })}
+        </div>
 
         <div className="w-full flex items-center justify-between gap-4 mt-4">
           {back && (
