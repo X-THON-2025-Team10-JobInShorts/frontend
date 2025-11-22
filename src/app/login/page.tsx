@@ -3,6 +3,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
 import { UserRole, LOCAL_STORAGE_KEYS } from '@/constants/local-storage';
 import { KoreaMajorCity } from '@/constants/korea-major-city';
 import { User, Briefcase, Lock, ArrowLeft, MapPinned } from 'lucide-react';
@@ -171,29 +179,22 @@ export default function LoginPage() {
           <label className="block text-gray-800 text-sm font-medium mb-2">
             {selectedRole === 'USER' ? '희망 근무지' : '회사 위치'}
           </label>
-          <div className="relative">
-            {' '}
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MapPinned className="h-5 w-5 text-gray-400" />
-            </div>
-            <select
-              value={selectedCity}
-              onChange={handleChange}
-              className={cn(
-                'w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg',
-                'focus:outline-none focus:border-gray-800 focus:ring-1 focus:ring-gray-800 transition-colors',
-              )}
-            >
-              <option value="" disabled>
-                지역을 선택해주세요
-              </option>
+          <div className="relative w-full">
+            <MapPinned className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
 
-              {Object.entries(KoreaMajorCity).map(([enumKey, enumValue]) => (
-                <option key={enumKey} value={enumKey}>
-                  {enumValue}
-                </option>
-              ))}
-            </select>
+            <Select value={selectedCity} onValueChange={setSelectedCity}>
+              <SelectTrigger className="w-full pl-10 pr-4 py-3">
+                <SelectValue placeholder="지역을 선택해주세요" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {Object.entries(KoreaMajorCity).map(([key, label]) => (
+                  <SelectItem key={key} value={key}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* 디버깅용 출력 */}
@@ -205,12 +206,18 @@ export default function LoginPage() {
         </div>
 
         {/* 로그인 버튼 */}
-        <div className="pt-4">
+        <div className="pt-4 space-y-4">
           <button
             type="submit"
             className="w-full bg-gray-900 text-white font-bold py-4 px-4 rounded-lg hover:bg-black transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
           >
             로그인
+          </button>
+          <button
+            onClick={() => router.push('/shorts')}
+            className="w-full text-gray-900 border border-gray-200 font-bold py-4 px-4 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
+          >
+            로그인 하지 않고 둘러보기
           </button>
         </div>
       </form>

@@ -39,13 +39,13 @@ export default function RootLayout({
         className={cn(
           geistSans.variable,
           geistMono.variable,
-          'antialiased flex flex-col w-full justify-center items-center h-screen overflow-hidden',
+          'antialiased flex justify-center items-center h-screen',
           IS_DEV ? 'bg-green-400' : 'bg-gray-100',
         )}
       >
         <ProgressBar>
-          <div className="relative flex flex-col w-full max-w-md h-full bg-white shadow-xl overflow-hidden">
-            <main className="flex-1 w-full h-full overflow-y-auto scrollbar-hide">{children}</main>
+          <div className="relative w-full max-w-md h-full bg-white shadow-xl">
+            <main className="w-full h-full pb-14 overflow-y-auto scrollbar-hide">{children}</main>
             {modal}
             <Footer />
           </div>

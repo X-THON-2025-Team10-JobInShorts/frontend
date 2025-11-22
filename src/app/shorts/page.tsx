@@ -93,13 +93,13 @@ function ShortsPageInner() {
   }, [searchParams]); // currentIndex를 의존성에서 빼서 루프 방지
 
   return (
-    <div className="relative w-full h-screen bg-black overflow-hidden">
+    <div className="relative w-full h-full bg-black">
       {/* 메인 스크롤 컨테이너 */}
       <div
         ref={containerRef}
         onScroll={handleScroll}
         className="
-          w-full h-full 
+          w-full h-full md:h-screen
           overflow-y-scroll 
           snap-y snap-mandatory 
           no-scrollbar 

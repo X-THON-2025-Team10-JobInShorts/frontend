@@ -3,7 +3,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { FaPlay } from 'react-icons/fa';
 
-import type { Short } from '@/data/shorts';
+import type { Short } from '@/mocks/shorts';
 import { usePlaybackStore } from '@/stores/playback.store';
 import { cn } from '@/lib/utils';
 
@@ -101,7 +101,7 @@ function ShortsPlayerInner(
       {/* 텍스트 오버레이 (그라데이션 추가로 가독성 확보) */}
       <div
         className={cn(
-          'absolute bottom-0 left-0 w-full p-6 pb-20 text-white',
+          'absolute bottom-0 left-0 w-full p-6 mb-24 md:mb-10 text-white',
           'bg-linear-to-t from-black/80 via-black/40 to-transparent pointer-events-none z-20',
         )}
       >
