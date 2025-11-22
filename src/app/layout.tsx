@@ -4,6 +4,7 @@ import './globals.css';
 
 import { cn } from '@/lib/utils';
 import Footer from '@/layouts/Footer';
+import ProgressBar from './_Provider/ProgressBar';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -33,14 +34,16 @@ export default function RootLayout({
         className={cn(
           geistSans.variable,
           geistMono.variable,
-          'antialiased flex flex-col w-full justify-center items-center h-screen',
+          'antialiased flex flex-col w-full justify-center items-center h-screen overflow-hidden',
           IS_DEV ? 'bg-green-400' : 'bg-gray-100',
         )}
       >
-        <div className="flex flex-col justify-between w-full max-w-md h-full bg-gray-100">
-          <main>{children}</main>
-          <Footer />
-        </div>
+        <ProgressBar>
+          <div className="relative flex flex-col w-full max-w-md h-full bg-white shadow-xl overflow-hidden">
+            <main className="flex-1 w-full h-full overflow-y-auto scrollbar-hide">{children}</main>
+            <Footer />
+          </div>
+        </ProgressBar>
       </body>
     </html>
   );
