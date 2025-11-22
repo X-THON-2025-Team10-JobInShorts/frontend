@@ -54,10 +54,10 @@ function ShortsPageInner() {
   }, [searchParams]);
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-900">
+    <>
       <div
         ref={containerRef}
-        className="relative w-full max-w-lg h-full snap-y snap-mandatory overflow-y-scroll no-scrollbar"
+        className="relative snap-y snap-mandatory overflow-y-scroll no-scrollbar"
         onScroll={handleScroll}
       >
         {shorts.map((short, index) => (
@@ -88,7 +88,7 @@ function ShortsPageInner() {
           <FaArrowDown />
         </button>
       </div>
-    </div>
+    </>
   );
 }
 
