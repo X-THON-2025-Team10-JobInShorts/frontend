@@ -35,15 +35,37 @@ function ShortsPlayerInner(
   const { hasInteracted, setHasInteracted } = usePlaybackStore();
 
   const play = useCallback(() => {
-    videoRef.current?.play().catch(() => {
-      // 자동 재생 정책 등으로 실패 시 처리
-      setIsPaused(true);
-    });
-    setIsPaused(false);
+    const video = videoRef.current;
+    if (!video) return;
+
+    // video.play()는 Promise를 반환합니다.
+    const playPromise = video.play();
+
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          // 재생 성공 시
+          setIsPaused(false);
+        })
+        .catch(error => {
+          if (error.name === 'AbortError') {
+            console.log('재생이 중단되었습니다. (빠른 스크롤 등)');
+          } else {
+            console.error('재생 실패:', error);
+            setIsPaused(true);
+          }
+        });
+    }
   }, []);
 
   const pause = useCallback(() => {
-    videoRef.current?.pause();
+    const video = videoRef.current;
+    if (!video) return;
+
+    // 재생 중이 아닐 때 pause를 부르면 에러가 날 수 있으므로 체크
+    if (!video.paused) {
+      video.pause();
+    }
     setIsPaused(true);
   }, []);
 
@@ -85,87 +107,97 @@ function ShortsPlayerInner(
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <div className="relative w-full h-full bg-black overflow-hidden">
-        {/* object-contain 대신 object-cover를 쓰면 꽉 차게 보이지만 위아래가 잘릴 수 있음. 숏츠 특성상 cover가 더 몰입감 있음 */}
-        <video
-          ref={videoRef}
-          src={short.videoUrl}
-          className="w-full h-full object-contain md:object-contain bg-black"
-          playsInline
-          loop
-          onPlay={() => setIsPaused(false)}
-          onPause={() => setIsPaused(true)}
-        />
-
-        {/* 클릭 영역 (전체 화면) */}
         <div
-          className="absolute inset-0 z-10 cursor-pointer flex items-center justify-center"
-          onClick={handleVideoClick}
-        >
-          {isPaused && (
-            <div className="text-white bg-black/40 rounded-full p-5 backdrop-blur-sm transform transition-transform active:scale-95">
-              <FaPlay size={32} />
-            </div>
+          className={cn(
+            'relative w-full h-full bg-black overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] origin-top transform-gpu will-change-transform backface-hidden',
+            open ? 'scale-[0.3] rounded-[20px] translate-y-2 opacity-80' : '',
           )}
+        >
+          <video
+            ref={videoRef}
+            src={short.videoUrl}
+            className="w-full h-full object-contain"
+            playsInline
+            loop
+            onPlay={() => setIsPaused(false)}
+            onPause={() => setIsPaused(true)}
+          />
+          {/* 클릭 영역 (전체 화면) */}
+          <div
+            className="absolute inset-0 z-10 cursor-pointer flex items-center justify-center"
+            onClick={handleVideoClick}
+          >
+            {isPaused && (
+              <div className="text-white bg-black/40 rounded-full p-5 backdrop-blur-sm transform transition-transform active:scale-95">
+                <FaPlay size={32} />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 텍스트 오버레이 (그라데이션 추가로 가독성 확보) */}
         <div
           className={cn(
-            'absolute bottom-0 left-0 w-[75%] p-6 mb-24 md:mb-10 text-white',
+            'absolute bottom-0 left-0 w-full p-6 pb-30 md:pb-20 text-white',
             'bg-linear-to-t from-black/80 via-black/40 to-transparent pointer-events-auto z-20',
           )}
         >
-          <h3 className="text-lg font-bold mb-1 drop-shadow-md">{short.title}</h3>
-          <p className="text-sm text-gray-200 line-clamp-2 mb-2 drop-shadow-sm">
-            {short.description}
-          </p>
-          <div className="flex items-center gap-2">
-            {short.owner.profileImageUrl ? (
-              <Image
-                src={short.owner.profileImageUrl}
-                alt={`${short.owner.displayName}'s avatar`}
-                className="w-6 h-6 rounded-full"
-                width={24}
-                height={24}
-              />
-            ) : (
-              <div className="w-6 h-6 rounded-full bg-gray-500"></div>
-            )}
-            <p className="text-xs font-medium text-gray-300">By {short.owner.displayName}</p>
-          </div>
-
-          {/* 태그와 더보기 */}
-          <section className="my-2 flex justify-between w-full">
-            {/* TAG PREVIEW */}
-            <div className="flex items-center flex-wrap gap-1">
-              {short.tags.slice(0, 2).map(tag => (
-                <span
-                  key={tag}
-                  className="px-2 py-0.5 text-[10px] bg-white/10 border border-white/20 rounded-full"
-                >
-                  #{tag}
-                </span>
-              ))}
-
-              {/* 추가 태그가 더 있으면 +N 표시 */}
-              {short.tags.length > 2 && (
-                <span
-                  className="px-2 py-0.5 text-[10px] bg-white/10 border border-white/20 rounded-full cursor-pointer underline"
-                  onClick={() => setOpen(true)}
-                >
-                  +{short.tags.length - 2} 더보기
-                </span>
+          <div className="w-[75%]">
+            <h3 className="text-lg font-bold mb-1 drop-shadow-md">{short.title}</h3>
+            <p
+              onClick={() => setOpen(true)}
+              className="text-sm text-gray-200 line-clamp-2 mb-2 drop-shadow-sm cursor-pointer"
+            >
+              {short.description}
+            </p>
+            <div className="flex items-center gap-2">
+              {short.owner.profileImageUrl ? (
+                <Image
+                  src={short.owner.profileImageUrl}
+                  alt={`${short.owner.displayName}'s avatar`}
+                  className="w-6 h-6 rounded-full"
+                  width={24}
+                  height={24}
+                />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-gray-500"></div>
               )}
+              <p className="text-xs font-medium text-gray-300">By {short.owner.displayName}</p>
             </div>
 
-            <button className="cursor-pointer p-1" onClick={openMore}>
-              <p className="text-sm text-gray-300 underline ">더보기</p>
-            </button>
-          </section>
+            {/* 태그와 더보기 */}
+            <section className="my-2 flex justify-between w-full">
+              {/* TAG PREVIEW */}
+              <div className="flex items-center flex-wrap gap-1">
+                {short.tags.slice(0, 2).map(tag => (
+                  <span
+                    key={tag}
+                    className="px-2 py-0.5 text-[10px] bg-white/10 border border-white/20 rounded-full"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+
+                {/* 추가 태그가 더 있으면 +N 표시 */}
+                {short.tags.length > 2 && (
+                  <span
+                    className="px-2 py-0.5 text-[10px] bg-white/10 border border-white/20 rounded-full cursor-pointer underline"
+                    onClick={() => setOpen(true)}
+                  >
+                    +{short.tags.length - 2} 더보기
+                  </span>
+                )}
+              </div>
+
+              <button className="cursor-pointer p-1" onClick={openMore}>
+                <p className="text-sm text-gray-300 underline ">더보기</p>
+              </button>
+            </section>
+          </div>
         </div>
 
         {/* BOTTOM Drawer */}
-        <DrawerContent className="max-w-md mx-auto w-full rounded-t-[20px] h-[85vh] flex flex-col">
+        <DrawerContent className="max-w-md mx-auto w-full rounded-t-[20px] h-[70vh] flex flex-col">
           {/* 1. 헤더 및 메타데이터 (고정 영역) */}
           <div className="px-4 pt-2 pb-4 shrink-0">
             {/* 핸들바 디자인 개선 */}
