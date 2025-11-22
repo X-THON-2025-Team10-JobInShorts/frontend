@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import Footer from '@/layouts/Footer';
 import ProgressBar from './_Provider/ProgressBar';
 import FooterPad from './_Provider/FooterPad';
+import QueryClient from './_Provider/QueryClient';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -45,11 +46,13 @@ export default function RootLayout({
         )}
       >
         <ProgressBar>
-          <div className="relative w-full max-w-md h-full bg-white shadow-xl">
-            <FooterPad className="w-full h-full scrollbar-hide">{children}</FooterPad>
-            {modal}
-            <Footer />
-          </div>
+          <QueryClient>
+            <div className="relative w-full max-w-md h-full bg-white shadow-xl">
+              <FooterPad className="w-full h-full scrollbar-hide">{children}</FooterPad>
+              {modal}
+              <Footer />
+            </div>
+          </QueryClient>
         </ProgressBar>
       </body>
     </html>

@@ -5,14 +5,44 @@ import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { ShortsPlayer, ShortsPlayerRef } from '@/components/shorts/ShortsPlayer';
-import { mockFeed } from '@/apis/shorts/mock.data';
-
-const shorts = mockFeed.data;
+import { useInfiniteShortsFeed } from '@/apis/shorts/useInfiniteShortsFeed.query';
+import { LOCAL_STORAGE_KEYS } from '@/constants/local-storage';
+// import { mockFeed } from '@/apis/shorts/mock.data';
 
 function ShortsPageInner() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const [pid, setPid] = useState<string | null>(null);
+
+  useEffect(() => {
+    const p = localStorage.getItem(LOCAL_STORAGE_KEYS.PID);
+    setPid(p);
+  }, []);
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteShortsFeed(pid);
+  const shorts = data ? data.pages.flatMap(page => page.data) : [];
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const container = containerRef.current;
+
+    const onScroll = () => {
+      if (!data || !hasNextPage || isFetchingNextPage) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = container;
+
+      // 끝에서 1.5 화면 정도 남았을 때 다음 페이지 로드
+      if (scrollHeight - scrollTop - clientHeight < clientHeight * 1.5) {
+        fetchNextPage();
+      }
+    };
+
+    container.addEventListener('scroll', onScroll);
+    return () => container.removeEventListener('scroll', onScroll);
+  }, [data, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);

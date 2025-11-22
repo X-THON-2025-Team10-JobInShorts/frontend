@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
+import Link from 'next/link';
 import {
   Upload,
   CheckCircle,
@@ -11,6 +12,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import { useFunnel } from '@/hooks/useFunnel';
+import { getPresignedUrl, uploadToPresignedUrl } from '@/lib/upload.service';
 
 export default function ShortsUploader({ isModal = false }: { isModal?: boolean }) {
   // Funnel 정의 (총 3단계)
@@ -19,8 +21,6 @@ export default function ShortsUploader({ isModal = false }: { isModal?: boolean 
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -44,27 +44,23 @@ export default function ShortsUploader({ isModal = false }: { isModal?: boolean 
 
   // 업로드 로직
   const handleUpload = async () => {
-    if (!file || !title.trim()) return;
+    if (!file) return;
 
     try {
-      setStep('Uploading'); // 업로드 화면으로 전환
+      setStep('Uploading');
       setProgress(0);
 
-      // 1. 백엔드에서 Presigned URL 발급 요청 (가상)
-      console.log('Getting Presigned URL...');
-      const uploadUrl = 'https://fake-s3-url.com/upload';
-      await new Promise(r => setTimeout(r, 500));
+      // 1. Presigned URL 요청
+      const ownerPid = localStorage.getItem('pid') || 'unknown';
+      const { uploadUrl, videoKey } = await getPresignedUrl({ ownerPid, file });
 
-      // 2. S3/R2로 실제 업로드 시뮬레이션
-      console.log(`Uploading to ${uploadUrl}...`);
-      for (let i = 0; i <= 100; i += 5) {
-        setProgress(i);
-        await new Promise(r => setTimeout(r, 50));
-      }
+      // 2. S3 업로드
+      await uploadToPresignedUrl(uploadUrl, file, p => setProgress(p));
 
-      console.log('Upload Complete!');
-    } catch (error) {
-      console.error(error);
+      setProgress(100);
+      await new Promise(r => setTimeout(r, 300));
+    } catch (e) {
+      console.error(e);
       alert('업로드 실패');
       setStep('Details');
     }
@@ -74,8 +70,6 @@ export default function ShortsUploader({ isModal = false }: { isModal?: boolean 
   const reset = () => {
     setFile(null);
     setPreviewUrl(null);
-    setTitle('');
-    setDescription('');
     setProgress(0);
     setStep('Select');
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -172,33 +166,9 @@ export default function ShortsUploader({ isModal = false }: { isModal?: boolean 
                     />
                   )}
                 </div>
-                <div className="p-5 space-y-6 flex-1">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700">제목 (필수)</label>
-                    <input
-                      type="text"
-                      value={title}
-                      onChange={e => setTitle(e.target.value)}
-                      placeholder="영상을 설명할 멋진 제목을 지어주세요"
-                      className="w-full px-0 py-2 border-b border-gray-200 text-lg focus:border-black focus:outline-none bg-transparent placeholder:text-gray-300"
-                      autoFocus
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700">설명</label>
-                    <textarea
-                      value={description}
-                      onChange={e => setDescription(e.target.value)}
-                      placeholder="#해시태그 #숏폼"
-                      rows={3}
-                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-100 text-sm focus:ring-1 focus:ring-black focus:outline-none resize-none"
-                    />
-                  </div>
-                </div>
                 <div className="p-4 border-t border-gray-100">
                   <button
                     onClick={handleUpload}
-                    disabled={!title.trim()}
                     className="w-full py-3.5 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-xl font-bold text-lg transition-all active:scale-95 shadow-lg shadow-red-200"
                   >
                     게시하기
@@ -244,9 +214,12 @@ export default function ShortsUploader({ isModal = false }: { isModal?: boolean 
                       >
                         다른 영상 올리기
                       </button>
-                      <button className="w-full py-3 bg-black text-white rounded-xl font-semibold hover:bg-gray-800 transition-colors">
+                      <Link
+                        href="/profile"
+                        className="w-full py-3 bg-black text-white rounded-xl font-semibold hover:bg-gray-800 transition-colors"
+                      >
                         내 영상 보러가기
-                      </button>
+                      </Link>
                     </div>
                   </>
                 )}

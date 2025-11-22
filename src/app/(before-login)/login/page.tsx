@@ -41,6 +41,11 @@ const ROLE_BUTTON_TEXT = {
   },
 };
 
+const BASE_URL = {
+  LOGIN: `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
+  SIGNUP: `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signup`,
+};
+
 export default function LoginPage() {
   const router = useRouter();
 
@@ -52,6 +57,7 @@ export default function LoginPage() {
 
   const [selectedRole, setSelectedRole] = useState<UserRole>('USER');
   const [selectedCity, setSelectedCity] = useState<string>('');
+  const [loginMode, setLoginMode] = useState<'LOGIN' | 'SIGNUP'>('LOGIN');
 
   const onSubmit = async (data: LoginFormData) => {
     try {
@@ -64,7 +70,7 @@ export default function LoginPage() {
         // city: selectedCity,
       };
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`, {
+      const response = await fetch(BASE_URL[loginMode], {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -213,16 +219,28 @@ export default function LoginPage() {
         <div className="pt-4 space-y-4">
           <button
             type="submit"
-            className="w-full bg-gray-900 text-white font-bold py-4 px-4 rounded-lg hover:bg-black transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
+            className={cn(
+              'w-full bg-gray-900 text-white font-bold py-4 px-4 rounded-lg',
+              'hover:bg-black transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900',
+            )}
           >
             로그인
           </button>
           <button
+            type="submit"
+            className={cn(
+              'w-full bg-gray-700 text-white font-bold py-4 px-4 rounded-lg',
+              'hover:bg-black transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900',
+            )}
+          >
+            회원가입
+          </button>
+          {/* <button
             onClick={() => router.push('/shorts')}
             className="w-full text-gray-900 border border-gray-200 font-bold py-4 px-4 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
           >
             로그인 하지 않고 둘러보기
-          </button>
+          </button> */}
         </div>
       </form>
     </div>

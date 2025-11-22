@@ -5,13 +5,15 @@ import { ShortsFeedResponseSchema } from './dto.schemas';
 
 const PAGE_SIZE = 10;
 
-async function fetchShortsFeed({ pageParam }: { pageParam?: string | null }) {
-  const params = new URLSearchParams();
-  params.append('size', String(PAGE_SIZE));
-  if (pageParam) params.append('pageParam', pageParam);
+async function fetchShortsFeed({ pageParam, pid }: { pageParam?: string | null; pid: string }) {
+  if (!pid) {
+    throw new Error('PID가 제공되지 않았습니다.');
+  }
 
-  const res = await instance.get<ShortsFeedResponse>('/api/short-forms/feed', {
-    params: params,
+  const res = await instance.post<ShortsFeedResponse>('/short-forms/api/feed', {
+    currentUserPid: pid,
+    size: PAGE_SIZE,
+    ...(pageParam ? { pageParam } : {}),
   });
   const parsed = ShortsFeedResponseSchema.safeParse(res.data);
   if (!parsed.success) {
@@ -21,10 +23,11 @@ async function fetchShortsFeed({ pageParam }: { pageParam?: string | null }) {
   return parsed.data;
 }
 
-export function useInfiniteShortsFeed() {
+export function useInfiniteShortsFeed(pid: string | null) {
   return useInfiniteQuery<ShortsFeedResponse>({
-    queryKey: ['short-form-feed'],
-    queryFn: ({ pageParam }) => fetchShortsFeed({ pageParam: pageParam as string | null }),
+    queryKey: ['short-form-feed', pid],
+    queryFn: ({ pageParam, queryKey }) =>
+      fetchShortsFeed({ pageParam: pageParam as string | null, pid: queryKey[1] as string }),
     initialPageParam: null,
     getNextPageParam: lastPage => (lastPage.hasNextPage ? lastPage.nextPageParam : undefined),
   });
