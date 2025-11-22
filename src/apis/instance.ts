@@ -1,13 +1,11 @@
 'use client';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-if (!BACKEND_URL) {
-  throw new Error('BACKEND_URL is not defined');
-}
+// 프록시를 통해 백엔드에 요청 (CORS 문제 해결)
+const PROXY_BASE_URL = '/api/proxy';
 
 export const instance = axios.create({
-  baseURL: BACKEND_URL,
+  baseURL: PROXY_BASE_URL,
   responseType: 'json',
   headers: { 'Content-Type': 'application/json' },
   timeout: 10000,
