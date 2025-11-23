@@ -1,12 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, Suspense } from 'react';
-import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
+import { FaArrowUp, FaArrowDown, FaBookmark } from 'react-icons/fa';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 
 import { ShortsPlayer, ShortsPlayerRef } from '@/components/shorts/ShortsPlayer';
 import { useInfiniteShortsFeed } from '@/apis/shorts/useInfiniteShortsFeed.query';
-import { LOCAL_STORAGE_KEYS } from '@/constants/local-storage';
+import { LOCAL_STORAGE_KEYS, UserRole } from '@/constants/local-storage';
 // import { mockFeed } from '@/apis/shorts/mock.data';
 
 function ShortsPageInner() {
@@ -15,10 +16,13 @@ function ShortsPageInner() {
   const searchParams = useSearchParams();
 
   const [pid, setPid] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
 
   useEffect(() => {
     const p = localStorage.getItem(LOCAL_STORAGE_KEYS.PID);
     setPid(p);
+    const role = localStorage.getItem(LOCAL_STORAGE_KEYS.USER_ROLE) as UserRole | null;
+    setUserRole(role);
   }, []);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteShortsFeed(pid);
@@ -155,7 +159,25 @@ function ShortsPageInner() {
       </div>
 
       {/* 네비게이션 버튼 (PC용 혹은 오버레이) */}
-      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-4 z-50">
+      <div className="absolute right-4 top-3/4 -translate-y-1/2 flex flex-col gap-4 z-50">
+        <Image
+          src={shorts[currentIndex]?.owner.profileImageUrl || '/default-profile.png'}
+          alt="Creator Avatar"
+          width={48}
+          height={48}
+          className="rounded-full object-cover border-2 border-white"
+        />
+        {userRole === 'COMPANY' && (
+          <button
+            onClick={() => {
+              // [TODO] 북마크 API 연동
+              alert(`숏츠 ID ${shorts[currentIndex]} 북마크!`);
+            }}
+            className="p-3 rounded-full bg-black/40 text-white hover:bg-black/60 transition-all disabled:opacity-0 disabled:pointer-events-none backdrop-blur-sm"
+          >
+            <FaBookmark size={24} />
+          </button>
+        )}
         <button
           onClick={() => {
             updateUrl(currentIndex - 1); // URL 먼저 변경하여 히스토리 일관성 유지
@@ -164,7 +186,7 @@ function ShortsPageInner() {
           disabled={currentIndex === 0}
           className="p-3 rounded-full bg-black/40 text-white hover:bg-black/60 transition-all disabled:opacity-0 disabled:pointer-events-none backdrop-blur-sm"
         >
-          <FaArrowUp size={20} />
+          <FaArrowUp size={24} />
         </button>
         <button
           onClick={() => {
@@ -174,7 +196,7 @@ function ShortsPageInner() {
           disabled={currentIndex === shorts.length - 1}
           className="p-3 rounded-full bg-black/40 text-white hover:bg-black/60 transition-all disabled:opacity-0 disabled:pointer-events-none backdrop-blur-sm"
         >
-          <FaArrowDown size={20} />
+          <FaArrowDown size={24} />
         </button>
       </div>
     </div>

@@ -7,22 +7,15 @@ import { X, Clock, Search } from 'lucide-react';
 import Image from 'next/image';
 import { LOCAL_STORAGE_KEYS } from '@/constants/local-storage';
 
-type SearchItem = {
-  id: string;
-  thumbnail: string;
-  title: string;
-};
+import type { Shorts } from '@/apis/shorts/dto.types';
+import { mockFeed } from '@/apis/shorts/mock.data';
 
-const MOCK_REELS: SearchItem[] = [
-  { id: '1', thumbnail: '/reels/reel1.jpg', title: '멋진 개발자 브이로그' },
-  { id: '2', thumbnail: '/reels/reel2.jpg', title: '스타트업 하루 일상' },
-  { id: '3', thumbnail: '/reels/reel3.jpg', title: 'React로 만드는 UI' },
-];
+const searchResult = mockFeed.data;
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const [results, setResults] = useState<SearchItem[]>([]);
+  const [results, setResults] = useState<Shorts[]>([]);
   const [history, setHistory] = useState<string[]>(() => {
     if (typeof window === 'undefined') return [];
     try {
@@ -42,7 +35,7 @@ export default function SearchPage() {
     setHistory(updated);
     localStorage.setItem(LOCAL_STORAGE_KEYS.SEARCH_HISTORY, JSON.stringify(updated));
 
-    const filtered = MOCK_REELS.filter(item => item.title.includes(value));
+    const filtered = searchResult.filter(item => item.title.includes(value));
     setResults(filtered);
   };
 
@@ -149,7 +142,7 @@ export default function SearchPage() {
           {results.map(item => (
             <div key={item.id} className="relative">
               <Image
-                src={item.thumbnail}
+                src={item.videoUrl} // [TODO] 썸네일 URL로 변경 필요
                 alt={item.title}
                 width={400}
                 height={600}

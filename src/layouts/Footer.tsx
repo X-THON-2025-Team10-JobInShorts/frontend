@@ -1,21 +1,21 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { FOOTER_ITEMS, DONT_SHOW_FOOTER_PATHS } from '@/constants/footer';
 import { LOCAL_STORAGE_KEYS } from '@/constants/local-storage';
 
 export default function Footer() {
   const pathname = usePathname();
-  const [userRole, setUserRole] = useState<string | null>(() => {
-    try {
-      if (typeof window === 'undefined') return null;
-      return localStorage.getItem(LOCAL_STORAGE_KEYS.USER_ROLE);
-    } catch {
-      return null;
-    }
-  });
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  // 사용자 역할 가져오기
+  useEffect(() => {
+    const role = localStorage.getItem(LOCAL_STORAGE_KEYS.USER_ROLE);
+    // eslint-disable-next-line
+    setUserRole(role);
+  }, [pathname]);
 
   // 1. 숨김 처리
   if (DONT_SHOW_FOOTER_PATHS.includes(pathname)) {
@@ -27,7 +27,7 @@ export default function Footer() {
 
   const visibleItems = FOOTER_ITEMS.filter(item => {
     // 기업 회원이면 'Upload' 메뉴 제외
-    if (userRole === 'COMPANY' && item.title === 'Upload') {
+    if (userRole === 'COMPANY' && item.title === '업로드') {
       return false;
     }
     return true;
