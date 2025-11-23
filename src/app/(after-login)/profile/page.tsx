@@ -72,7 +72,7 @@ export default function ProfilePage() {
               description: user.bio || '회사 소개가 없습니다.',
               location: (user as CompanyInfoResponse).location || '위치 정보 없음',
               email: (user as CompanyInfoResponse).contactEmail || user.email,
-              avatar: user.profileImageUrl || '',
+              avatar: user.profileImageUrl || '/temp-profile.avif',
               jobPostings: (user as CompanyInfoResponse).stats?.jobPostings || 0,
               followers: (user as CompanyInfoResponse).stats?.followers || 0,
             }}

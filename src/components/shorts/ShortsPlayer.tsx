@@ -156,7 +156,7 @@ function ShortsPlayerInner(
             <div className="flex items-center gap-2">
               {short.owner.profileImageUrl ? (
                 <Image
-                  src={short.owner.profileImageUrl}
+                  src={short.owner.profileImageUrl || '/temp-profile.png'}
                   alt={`${short.owner.displayName}'s avatar`}
                   className="w-6 h-6 rounded-full"
                   width={24}
