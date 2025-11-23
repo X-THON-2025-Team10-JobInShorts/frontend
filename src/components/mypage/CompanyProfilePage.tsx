@@ -1,9 +1,36 @@
-import { ChevronLeft, Settings, Share2, MapPin, Mail, Bookmark } from 'lucide-react';
+import { MapPin, Bookmark } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { ProfileHeader } from './ProfileHeader';
+import { ProfileInfo, type ProfileStat } from './ProfileInfo';
+import { ProfileActions } from './ProfileActions';
 import type { Applicant } from '@/types/company';
 
-export function CompanyProfilePage() {
-  const mockApplicants: Applicant[] = [
+interface CompanyProfilePageProps {
+  company?: {
+    name: string;
+    username: string;
+    description: string;
+    location: string;
+    email: string;
+    avatar: string;
+    jobPostings: number;
+    followers: number;
+  };
+  bookmarkedApplicants?: Applicant[];
+}
+
+export function CompanyProfilePage({
+  company = {
+    name: '테크 스타트업',
+    username: 'techstartup_kr',
+    description: '혁신적인 기술로 더 나은 세상을 만듭니다',
+    location: '서울시 강남구 테헤란로',
+    email: 'recruit@techstartup.com',
+    avatar: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=200&h=200&fit=crop',
+    jobPostings: 42,
+    followers: 1200,
+  },
+  bookmarkedApplicants = [
     {
       id: '1',
       name: '김민수',
@@ -49,86 +76,60 @@ export function CompanyProfilePage() {
       experience: '6년',
       location: '서울',
     },
+  ],
+}: CompanyProfilePageProps) {
+  const stats: ProfileStat[] = [
+    { label: '채용공고', value: company.jobPostings },
+    { label: '팔로워', value: '1.2K' },
+    { label: '북마크', value: bookmarkedApplicants.length },
   ];
+
+  const handleEditProfile = () => {
+    console.log('프로필 편집');
+  };
+
+  const handleShare = () => {
+    console.log('프로필 공유');
+  };
+
+  const handleSettings = () => {
+    console.log('설정');
+  };
 
   return (
     <>
-      {/* 헤더 */}
-      <header className="sticky top-0 z-10 bg-white flex items-center justify-between px-4 py-3 border-b border-gray-100">
-        <button className="p-1 -ml-2">
-          <ChevronLeft className="w-6 h-6 text-gray-800" />
-        </button>
-        <h1 className="text-lg font-extrabold text-gray-900">프로필</h1>
-        <button className="p-1 -mr-2">
-          <Settings className="w-6 h-6 text-gray-800" />
-        </button>
-      </header>
+      <ProfileHeader
+        onBackClick={() => console.log('뒤로가기')}
+        onSettingsClick={handleSettings}
+      />
 
       <div className="flex-1 overflow-y-auto">
-        {/* 프로필 정보 영역 */}
-        <section className="px-4 pt-6 pb-4">
-          {/* Company Info */}
-          <div className="flex items-center justify-between mb-4">
-            {/* 아바타 */}
-            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border border-gray-200">
-              <Avatar className="h-full w-full rounded-full">
-                <AvatarImage
-                  src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=200&h=200&fit=crop"
-                  alt="테크 스타트업"
-                />
-                <AvatarFallback className="rounded-full bg-primary text-primary-foreground">
-                  TS
-                </AvatarFallback>
-              </Avatar>
-            </div>
-
-            {/* 스탯 (채용공고, 팔로워, 북마크) */}
-            <div className="flex flex-1 justify-around ml-4 text-center">
-              <div className="flex flex-col">
-                <span className="font-bold text-lg text-gray-900">42</span>
-                <span className="text-xs text-gray-500">채용공고</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-lg text-gray-900">1.2K</span>
-                <span className="text-xs text-gray-500">팔로워</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-lg text-gray-900">{mockApplicants.length}</span>
-                <span className="text-xs text-gray-500">북마크</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 회사 이름 및 소개 */}
-          <div className="mb-5">
-            <h2 className="text-lg font-bold text-gray-900">테크 스타트업</h2>
-            <p className="text-sm text-gray-500 mb-2">@techstartup_kr</p>
-            <div className="text-sm text-gray-800 space-y-0.5">
-              <p>혁신적인 기술로 더 나은 세상을 만듭니다</p>
-              <div className="flex items-center gap-1 text-gray-600">
-                <MapPin className="w-3 h-3 text-red-500" />
-                <span>서울시 강남구 테헤란로</span>
-              </div>
-              <div className="flex items-center gap-1 text-gray-600">
-                <Mail className="w-3 h-3 text-red-400" />
-                <span>비즈니스 문의: recruit@techstartup.com</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 액션 버튼들 */}
-          <div className="flex items-center gap-2">
-            <button className="flex-1 bg-gray-50 border border-gray-200 rounded-lg py-1.5 text-sm font-semibold text-gray-900 hover:bg-gray-100 transition-colors">
-              프로필 편집
-            </button>
-            <button className="p-1.5 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
-              <Share2 className="w-5 h-5 text-gray-800" />
-            </button>
-            <button className="p-1.5 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
-              <Settings className="w-5 h-5 text-gray-800" />
-            </button>
-          </div>
-        </section>
+        <ProfileInfo
+          avatar={{
+            src: company.avatar,
+            fallback: company.name.slice(0, 2),
+            alt: company.name,
+          }}
+          stats={stats}
+          name={company.name}
+          handle={company.username}
+          bio={{
+            description: company.description,
+            location: company.location,
+            email: company.email,
+          }}
+          actions={
+            <ProfileActions
+              primaryAction={{
+                label: '프로필 편집',
+                onClick: handleEditProfile,
+              }}
+              showMore={false}
+              onShareClick={handleShare}
+              onSettingsClick={handleSettings}
+            />
+          }
+        />
 
         {/* 북마크한 지원자 섹션 */}
         <section className="px-4 pb-4">
@@ -138,7 +139,7 @@ export function CompanyProfilePage() {
           </div>
 
           <div className="space-y-3">
-            {mockApplicants.map(applicant => (
+            {bookmarkedApplicants.map(applicant => (
               <div
                 key={applicant.id}
                 className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
