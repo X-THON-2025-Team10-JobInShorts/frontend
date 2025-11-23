@@ -179,7 +179,7 @@ function ShortsPageInner() {
       {/* 네비게이션 버튼 (PC용 혹은 오버레이) */}
       <div className="absolute right-4 top-3/4 -translate-y-1/2 flex flex-col gap-4 z-50">
         <Image
-          src={shorts[currentIndex]?.owner.profileImageUrl || '/default-profile.png'}
+          src={shorts[currentIndex]?.owner.profileImageUrl || '/temp-profile.avif'}
           alt="Creator Avatar"
           width={48}
           height={48}
