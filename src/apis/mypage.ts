@@ -6,7 +6,7 @@ import type {
   UpdateUserInfoResponse,
   UserPostsResponse,
 } from '@/types/mypage';
-import type { Applicant } from '@/types/company';
+import type { BookmarkedApplicantsResponse, BookmarkToggleResponse } from '@/types/company';
 
 export const mypageApi = {
   getUserInfo: async (): Promise<UserInfoResponse | CompanyInfoResponse> => {
@@ -19,27 +19,17 @@ export const mypageApi = {
     return response.data;
   },
 
-  getUserPosts: async (userId?: string): Promise<UserPostsResponse> => {
-    const endpoint = userId ? `/mypage/posts/${userId}` : '/mypage/posts';
-    const response = await instance.get(endpoint);
+  getUserPosts: async (): Promise<UserPostsResponse> => {
+    const response = await instance.get('/mypage/posts');
     return response.data;
   },
 
-  getCompanyProfile: async (companyId?: string): Promise<CompanyInfoResponse> => {
-    const endpoint = companyId ? `/companies/${companyId}` : '/mypage/company';
-    const response = await instance.get(endpoint);
+  getBookmarkedApplicants: async (page = 1, limit = 20): Promise<BookmarkedApplicantsResponse> => {
+    const response = await instance.get(`/mypage/bookmarked?page=${page}&limit=${limit}`);
     return response.data;
   },
 
-  getBookmarkedApplicants: async (companyId?: string): Promise<Applicant[]> => {
-    const endpoint = companyId 
-      ? `/companies/${companyId}/bookmarked` 
-      : '/mypage/bookmarked';
-    const response = await instance.get(endpoint);
-    return response.data;
-  },
-
-  toggleBookmarkApplicant: async (applicantId: string): Promise<{ isBookmarked: boolean }> => {
+  toggleBookmarkApplicant: async (applicantId: string): Promise<BookmarkToggleResponse> => {
     const response = await instance.post(`/mypage/bookmark/${applicantId}`);
     return response.data;
   },

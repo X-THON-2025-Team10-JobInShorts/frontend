@@ -21,6 +21,27 @@ export interface Applicant {
   experience: string;
   location: string;
   isBookmarked?: boolean;
+  bookmarkedAt?: string;
+}
+
+export interface BookmarkedApplicantsResponse {
+  success: boolean;
+  data: Applicant[];
+  total: number;
+  pagination: {
+    page: number;
+    limit: number;
+    hasNext: boolean;
+  };
+}
+
+export interface BookmarkToggleResponse {
+  success: boolean;
+  data: {
+    applicantId: string;
+    isBookmarked: boolean;
+    message: string;
+  };
 }
 
 export interface CompanyProfile {
